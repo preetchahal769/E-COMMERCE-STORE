@@ -47,12 +47,12 @@ const setCookies = (res, accessToken, refreshToken) => {
 };
 export const signup = async (req, res) => {
   const { name, email, password } = req.body;
-
+  console.log("called");
   try {
     const userExists = await User.findOne({ email });
 
     if (userExists) {
-      return res.status(401).json({ msg: "User already exists" });
+      return res.status(401).json({ message: "User already exists" });
     }
     const user = await User.create({ name, email, password });
 
@@ -70,19 +70,21 @@ export const signup = async (req, res) => {
       message: "User  created successfully",
     });
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    console.error(error);
+    res.status(500).json({ message: "server error", error: error.message });
   }
 };
 
-export const signin = async (req, res) => {
+export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email });
-    if (user && user.comparePassword(password)) {
-      const { accessToken, refreshToken } = generateTokens(user._id);
 
+    if (user && (await user.comparePassword(password))) {
+      const { accessToken, refreshToken } = generateTokens(user._id);
       await storeRefreshToken(user._id, refreshToken);
       setCookies(res, accessToken, refreshToken);
+
       res.json({
         _id: user._id,
         name: user.name,
@@ -90,10 +92,12 @@ export const signin = async (req, res) => {
         role: user.role,
       });
     } else {
-      res.status(401).json({ msg: "Invalid email or password" });
+      console.log(user);
+      res.status(401).json({ message: "Invalid email or password" });
     }
   } catch (error) {
-    res.status(500).json({ msg: error.message });
+    console.error(error);
+    res.status(500).json({ message: error.message });
   }
 };
 
