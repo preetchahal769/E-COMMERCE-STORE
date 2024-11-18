@@ -11,7 +11,7 @@ const LoginPage = () => {
   const { login, user, loading } = useUserStore();
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log(`--typeof--- ${typeof email}`);
+
     login(email, password);
     setEmail("");
     setPassword("");
