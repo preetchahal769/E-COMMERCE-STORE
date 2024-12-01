@@ -18,7 +18,7 @@ router.get("/", protectRoute, adminRoute, async (req, res) => {
 
     res.json({ analyticsData, dailySalesData });
   } catch (error) {
-    console.error(` Error in analytics route ${error}`);
+    console.error(error);
     res.status(500).json({ msg: "server error", error: error.message });
   }
 });

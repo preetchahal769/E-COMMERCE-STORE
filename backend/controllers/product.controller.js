@@ -16,13 +16,14 @@ export const getFeaturedProducts = async (req, res) => {
   try {
     const featuredProducts = await redis.get(`featured_products`);
     if (featuredProducts) {
-      return res.json({ featuredProducts });
+      return res.json(JSON.parse(featuredProducts));
     }
     featuredProducts = await Product.find({ isFeatured: true }).lean();
     if (!featuredProducts) {
       return res.status(404).json({ msg: "No featured products found" });
     }
     await redis.set(`featured_products`, JSON.stringify(featuredProducts));
+    res.json(featuredProducts);
   } catch (error) {
     console.log(`error in getting featured products ${error}`);
   }
@@ -80,7 +81,7 @@ export const getRecommendedProducts = async (req, res) => {
   try {
     const products = await Product.aggregate([
       {
-        $sample: { size: 3 },
+        $sample: { size: 4 },
       },
       {
         $project: {

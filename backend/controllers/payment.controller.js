@@ -21,11 +21,12 @@ export const createCheckoutSession = async (req, res) => {
         price_data: {
           currency: "usd",
           product_data: {
-            name: products.name,
+            name: product.name,
             images: [product.image],
           },
           unit_amount: amount,
         },
+        quantity: product.quantity || 1,
       };
     });
     let coupon = null;
@@ -68,6 +69,7 @@ export const createCheckoutSession = async (req, res) => {
       .status(200)
       .json({ sessionId: session.id, totalAmount: totalAmount / 100 });
   } catch (error) {
+    console.error(`error in creating checkout session ${error}`);
     res.status(500).json({ msg: "server error", error: error.message });
   }
 };
@@ -122,6 +124,7 @@ async function createStripeCoupon(discountPercentage) {
 }
 
 async function createNewCoupon(userId) {
+  await Coupon.findOneAndDelete({ userId });
   const newCoupon = new Coupon({
     code: `GIFT${Math.random().toString().substring(2, 8)}`.toUpperCase(),
     discountPercentage: 10,
